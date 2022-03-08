@@ -29,6 +29,10 @@ const Banner: React.FC = () => {
                 intensity: 0.3
             });
         }
+
+        return () => {
+            rippleEffect.current?.dispose();
+        }
     }, [image]);
 
     return (
