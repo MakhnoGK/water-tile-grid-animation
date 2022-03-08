@@ -1,14 +1,29 @@
-import React, {useEffect} from 'react';
-import BannerApi from './banner.api';
+import React, { useLayoutEffect, useMemo, useRef } from 'react';
+import { useImageGrid } from './hooks/use-image-grid';
+
+import s from './banner.module.scss';
 
 const Banner: React.FC = () => {
-    useEffect(() => {
-        BannerApi.getPhotos().then((data) => {
-            console.log(data);
-        });
+    const containerRef = useRef<HTMLDivElement>(null);
+    const { init, image } = useImageGrid();
+
+    const gridFallback = useMemo(() => {
+        if (!image) return null;
+
+        return (
+            <img src={image} className={s.root__image} />
+        );
+    }, [image]);
+
+    useLayoutEffect(() => {
+        init(containerRef.current!);
     }, []);
 
-    return (<div />);
+    return (
+        <div ref={containerRef} className={s.root}>
+            {gridFallback}
+        </div>
+    );
 };
 
 export default Banner;
