@@ -4,18 +4,10 @@ export interface ImageData {
 }
 
 export interface ImageGrid {
-    /**
-     * Number of tiles per row/col
-     */
     dimmensions: Vector2;
-    /**
-     * Grid size in pixels
-     */
     size: Vector2;
-    /**
-     * Single tile size
-     */
     tile: Vector2;
+    texture?: string;
 }
 
 export interface Vector2 {

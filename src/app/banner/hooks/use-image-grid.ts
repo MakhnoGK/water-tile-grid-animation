@@ -2,7 +2,9 @@ import { useCallback, useEffect, useState } from 'react';
 import { debounce } from 'lodash';
 import { ImageGrid, ImageData, Vector2 } from '../banner.types';
 import BannerApi from '../banner.api';
+import { LS_TEXTURE } from '../../../constants/app.constants';
 import * as MathUtils from '../../../utils/math.utils';
+import LS from '../../../utils/local-storage.utils';
 
 const EXPECTING_TILE_SIZE = 100;
 
@@ -110,13 +112,23 @@ export const useImageGrid = () => {
     useEffect(() => {
         if (dimmensions && size) {
             try {
-                generateGrid({
-                    size, dimmensions, tile: {
-                        x: size.x / dimmensions.x,
-                        y: size.y / dimmensions.y
-                    }
-                }).then((image) => {
+                const cache = LS.read<ImageGrid>(LS_TEXTURE);
+
+                if (cache && cache.dimmensions.x === dimmensions.x) {
+                    setImage(cache.texture);
+                    
+                    return;
+                }
+
+                const tile = {
+                    x: size.x / dimmensions.x,
+                    y: size.y / dimmensions.y
+                };
+
+                generateGrid({ size, dimmensions, tile }).then((image) => {
                     setImage(image);
+
+                    LS.write(LS_TEXTURE, { dimmensions, texture: image });
                 });
             } catch (error) {
                 console.warn(`Error generating tile grid: ${error}`);
