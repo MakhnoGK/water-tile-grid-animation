@@ -1,12 +1,15 @@
 import { useCallback, useEffect, useState } from 'react';
+import { debounce } from 'lodash';
 import { ImageGrid, ImageData, Vector2 } from '../banner.types';
 import BannerApi from '../banner.api';
 import * as MathUtils from '../../../utils/math.utils';
 
+const EXPECTING_TILE_SIZE = 100;
+
 export const useImageGrid = () => {
-    const [image, setImage] = useState<string>();
     const [container, setContainer] = useState<HTMLDivElement>();
     const [dimmensions, setDimensions] = useState<Vector2>();
+    const [image, setImage] = useState<string>();
     const [size, setSize] = useState<Vector2>();
 
     const init = useCallback((container: HTMLDivElement) => {
@@ -38,6 +41,7 @@ export const useImageGrid = () => {
     const generateGrid = useCallback(async (options: ImageGrid): Promise<string> => {
         const response = await getImages();
         const images = await Promise.all(response);
+
         const canvas = document.createElement('canvas');
         canvas.width = options.size.x;
         canvas.height = options.size.y;
@@ -77,24 +81,48 @@ export const useImageGrid = () => {
         });
     }, []);
 
-    useEffect(() => {
+    const resizeCallback = useCallback(() => {
         if (container) {
             const { width, height } = container.getBoundingClientRect();
 
-            setDimensions({ x: Math.ceil(width / 100), y: Math.ceil(height / 100) });
+            setDimensions({
+                x: Math.ceil(width / EXPECTING_TILE_SIZE),
+                y: Math.ceil(height / EXPECTING_TILE_SIZE)
+            });
             setSize({ x: width, y: height });
+        }
+    }, [container]);
+
+    const resizeHandler = debounce(resizeCallback, 200);
+
+    useEffect(() => {
+        if (container) {
+            resizeCallback();
+
+            window.addEventListener('resize', resizeHandler);
+        }
+
+        return () => {
+            window.removeEventListener('resize', resizeHandler);
         }
     }, [container]);
 
     useEffect(() => {
         if (dimmensions && size) {
             try {
-                generateGrid({ size, dimmensions, tile: { x: size.x / dimmensions.x, y: size.y / dimmensions.y } }).then((image) => {
+                generateGrid({
+                    size, dimmensions, tile: {
+                        x: size.x / dimmensions.x,
+                        y: size.y / dimmensions.y
+                    }
+                }).then((image) => {
                     setImage(image);
                 });
-            } catch (error) { console.warn(`Error generating tile grid: ${error}`); }
+            } catch (error) {
+                console.warn(`Error generating tile grid: ${error}`);
+            }
         }
-    }, [dimmensions]);
+    }, [size]);
 
     return {
         image,
