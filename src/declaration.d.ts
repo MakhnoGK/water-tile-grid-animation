@@ -7,3 +7,6 @@ declare module '*.module.scss' {
     export = className;
 }
 
+declare module '*.glsl' {
+    export = string;
+}
