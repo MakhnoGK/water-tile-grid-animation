@@ -15,3 +15,31 @@ export interface Vector2 {
     y: number;
 }
 
+type Easing =
+    | 'Expo.none'
+    | 'Expo.easeOut'
+    | 'Expo.power1'
+    | 'Expo.power2'
+    | 'Expo.power3'
+    | 'Expo.power4'
+    | 'Expo.back'
+    | 'Expo.elastic'
+    | 'Expo.bounce'
+    | 'Expo.rough'
+    | 'Expo.slow'
+    | 'Expo.steps'
+    | 'Expo.circ'
+    | 'Expo.expo'
+    | 'Expo.sine';
+
+export interface RippleOptions {
+    container: HTMLElement;
+    intensity?: number;
+    strength?: number;
+    area?: number;
+    waveSpeed?: number;
+    speedIn?: number;
+    speedOut?: number;
+    easing?: Easing;
+    hover?: boolean;
+}

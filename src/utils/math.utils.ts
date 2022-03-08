@@ -1,2 +1,7 @@
-export const range = (min: number, max: number): number =>
-    Math.floor(Math.random() * (max - min) + min);
+export const range = (min: number, max: number, round = true): number => {
+    const raw = Math.random() * (max - min) + min;
+
+    return round
+        ? Math.floor(raw)
+        : raw;
+};
